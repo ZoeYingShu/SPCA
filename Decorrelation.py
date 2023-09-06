@@ -21,11 +21,21 @@ import inspect
 from SPCA import helpers, astro_models, make_plots, make_plots_custom, detec_models, bliss, freeze
 from SPCA import Decorrelation_helper as dh
 
+# ExoFile libraries if working offline ----------------------
+from exofile.archive import ExoFile
+from exofile.config import edit_param  # To edit
+from pathlib import Path
 
-planets = np.array(['CoRoT-2b', 'HAT-P-7b', 'KELT-1b', 'KELT-16b', 'KELT-9b', 'MASCARA-1b', 'Qatar-1b', 'WASP-103b', 'WASP-12b', 'WASP-12b_old', 'WASP-14b', 'WASP-18b', 'WASP-19b', 'WASP-33b', 'WASP-43b', 'HD189733b', 'HD209458b', 'HD149026b'])
+PATH_TO_EXOFILE_DIR = Path("/home/ldang05/SPCA_prj/SPCA")
+edit_param(exofile=PATH_TO_EXOFILE_DIR / 'masterfile.ecsv')
+# -----------------------------------------------------------
+
+# planets = np.array(['CoRoT-2b', 'HAT-P-7b', 'KELT-1b', 'KELT-16b', 'KELT-9b', 'MASCARA-1b', 'Qatar-1b', 'WASP-103b', 'WASP-12b', 'WASP-12b_old', 'WASP-14b', 'WASP-18b', 'WASP-19b', 'WASP-33b', 'WASP-43b', 'HD189733b', 'HD209458b', 'HD149026b'])
+planets = np.array(['CoRoT-2b'])
+planets_archive = np.array(['CoRoT-2 b'])
 channels = np.array(['ch2' for planet in planets])
 
-rootpath = '/homes/picaro/bellt/research/'
+rootpath = '/home/ldang05/projects/def-ncowan/ldang05/Spitzer_Data/'
 
 mode_appendix = '_autoRun'
 
@@ -103,9 +113,71 @@ if not binnedPhotometry:
 ## Download the most recent exoplanet archive data, and select the best constrained value for each parameter
 dh.downloadExoplanetArchive()
 
+# --------------- Zoe ---------------------
+def get_planet_data(planet): # case-sensitive
+    planet_data = ExoFile.load().by_pl_name(planet)
+    
+    # Define the variable names and their corresponding data names
+    variable_mapping = {
+        'rp': 'pl_ratror',
+        'a': 'pl_ratdor',
+        'per': 'pl_orbper',
+        't0': 'pl_tranmid',
+        'inc': 'pl_orbincl',
+        'e': 'pl_orbeccen',
+        'argp': 'pl_orblper',
+        'Tstar': 'st_teff',
+        'logg': 'st_logg',
+        'feh': 'st_met',
+        'rp_err': 'pl_ratrorerr1',
+        'a_err': 'pl_ratdorerr1',
+        'per_err': 'pl_orbpererr1',
+        't0_err': 'pl_tranmiderr1',
+        'inc_err': 'pl_orbinclerr1',
+        'e_err': 'pl_orbeccenerr1',
+        'argp_err': 'pl_orblpererr1',
+        'Tstar_err': 'st_tefferr1',
+    }
+
+    # Create a dictionary to store the variables
+    variables = {}
+
+    # Take the absolute value of each variable and store it in the dictionary
+    for var_name, var_data_name in variable_mapping.items():
+        variables[var_name] = abs(planet_data[var_data_name].data)
+
+    # Now you can access the absolute values using variable names
+    rp = variables['rp']
+    a = variables['a']
+    per = variables['per']
+    t0 = variables['t0']
+    inc = variables['inc']
+    e = variables['e']
+    argp = variables['argp']
+    Tstar = variables['Tstar']
+    logg = float(variables['logg'])
+    feh = float(variables['feh'])
+    rp_err = variables['rp_err']
+    a_err = variables['a_err']
+    per_err = variables['per_err']
+    t0_err = variables['t0_err']
+    inc_err = variables['inc_err']
+    e_err = variables['e_err']
+    argp_err = variables['argp_err']
+    Tstar_err = variables['Tstar_err']
+
+    parameters = [rp[0], a[0], per[0], t0[0], inc[0], e[0], argp[0], Tstar[0], logg, feh, rp_err[0], a_err[0], t0_err[0], per_err[0], inc_err[0], e_err[0], argp_err[0], Tstar_err[0]]
+
+    return parameters
+
+# --------------- End ---------------------
+
 for iterationNumber in range(len(planets)):
     
     planet = planets[iterationNumber]
+  
+    planet_archive = planets_archive[iterationNumber]
+
     channel = channels[iterationNumber]
     compFactor = compFactors[iterationNumber]
     cut_tmp = cuts[iterationNumber]
@@ -115,10 +187,19 @@ for iterationNumber in range(len(planets)):
     #########################
     # Load archival/custom data and prepare some variables
     
-    # This is going to work if the planet is within https://exoplanetarchive.ipac.caltech.edu/ database
-    if planet!='WASP-18b':
-        p0_obj = dh.loadArchivalData(rootpath, planet, channel)
+    # # This is going to work if the planet is within https://exoplanetarchive.ipac.caltech.edu/ database
+    # if planet!='WASP-18b':
+    #     p0_obj = dh.loadArchivalData(rootpath, planet, channel)
     
+    # --------------- Zoe ---------------------
+    # If cannot connect to the exoplanet archive, use the following code to load data from ExoFile
+    if planet!='WASP-18b':
+        parameters = get_planet_data(planet_archive)
+        p0_obj = dh.loadCustomData(rootpath, planet, channel, *parameters)
+
+    # --------------- End ---------------------
+
+
     ## If you would rather load your own data (e.g. your planet isn't in the exoplanet archive),
     ## you can use the function below. The error parameters are optional inputs, but are required if you want
     ## to put a prior on a parameter.
@@ -491,7 +572,7 @@ for iterationNumber in range(len(planets)):
             with threadpool_limits(limits=1, user_api='blas'):
                 with Pool(ncpu) as pool:
                     sampler = emcee.EnsembleSampler(nwalkers, ndim, helpers.lnprob, pool=pool, args=lnprob_inputs)
-                    pos2, prob, state = sampler.run_mcmc(pos0, int(np.rint((nBurnInSteps2+nProductionSteps)/nwalkers))
+                    pos2, prob, state = sampler.run_mcmc(pos0, int(np.rint((nBurnInSteps2+nProductionSteps)/nwalkers)),
                                                          progress=True)
             print("Mean acceptance fraction: {0:.3f}".format(np.mean(sampler.acceptance_fraction)), flush=True)
             

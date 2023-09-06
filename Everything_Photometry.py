@@ -13,7 +13,8 @@ from SPCA import Photometry_PLD as PLDPhotometry
 from SPCA.Photometry_Common import prepare_images
 
 # The names of all the planets you want analyzed (without spaces)
-planets = ['CoRoT-2b', 'HAT-P-7b', 'HD149026b', 'HD189733b', 'HD209458b', 'KELT-1b', 'KELT-16b', 'KELT-9b', 'MASCARA-1b', 'Qatar-1b', 'WASP-103b', 'WASP-12b', 'WASP-12b_old', 'WASP-14b', 'WASP-18b', 'WASP-19b', 'WASP-33b', 'WASP-43b']
+# planets = ['CoRoT-2b', 'HAT-P-7b', 'HD149026b', 'HD189733b', 'HD209458b', 'KELT-1b', 'KELT-16b', 'KELT-9b', 'MASCARA-1b', 'Qatar-1b', 'WASP-103b', 'WASP-12b', 'WASP-12b_old', 'WASP-14b', 'WASP-18b', 'WASP-19b', 'WASP-33b', 'WASP-43b']
+planets = ['CoRoT-2b']
 channels = ['ch2' for planet in planets]
 
 # Were the data taken in subarray mode?
@@ -23,7 +24,7 @@ subarrays = [True if planet!='WASP-103b' else False for planet in planets]
 ncpu = 56
 
 #folder containing data from each planet
-basepath = '/homes/picaro/bellt/research/'
+basepath = '/home/ldang05/projects/def-ncowan/ldang05/Spitzer_Data/'
 
 #################
 # General settings

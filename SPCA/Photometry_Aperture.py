@@ -12,7 +12,7 @@ from photutils.utils import calc_total_error
 from multiprocessing import Pool
 from functools import partial
 
-from collections import Iterable
+from collections.abc import Iterable
 
 from .Photometry_Common import highpassflist, bin_array, create_folder, prepare_images, clip_data
 from .make_plots import plot_photometry
