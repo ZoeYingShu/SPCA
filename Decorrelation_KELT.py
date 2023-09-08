@@ -31,11 +31,8 @@ edit_param(exofile=PATH_TO_EXOFILE_DIR / 'masterfile.ecsv')
 # -----------------------------------------------------------
 
 # planets = np.array(['CoRoT-2b', 'HAT-P-7b', 'KELT-1b', 'KELT-16b', 'KELT-9b', 'MASCARA-1b', 'Qatar-1b', 'WASP-103b', 'WASP-12b', 'WASP-12b_old', 'WASP-14b', 'WASP-18b', 'WASP-19b', 'WASP-33b', 'WASP-43b', 'HD189733b', 'HD209458b', 'HD149026b'])
-planets = np.array(['CoRoT-2b'])
-planets_archive = np.array(['CoRoT-2 b'])
-
-# planets = np.array(['KELT-20b'])
-# planets_archive = np.array(['KELT-20 b'])
+planets = np.array(['KELT-20b'])
+planets_archive = np.array(['KELT-20 b'])
 channels = np.array(['ch2' for planet in planets])
 
 rootpath = '/home/ldang05/projects/def-ncowan/ldang05/Spitzer_Data/'
@@ -77,7 +74,7 @@ oldPhotometry = False                    # Whether photometry was computed befor
 ncpu = 12                                # The number of cpu threads to be used when running MCMC
 runMCMC = True                           # whether to run MCMC or just load-in past results
 nIterScipy = 10                          # Number of iterative scipy runs used to locate best-fit before starting MCMCs
-nBurnInSteps2 = 7.5e5                    # number of steps to use for the second mcmc burn-in
+nBurnInSteps2 = 8.5e5                    # number of steps to use for the second mcmc burn-in
 nProductionSteps = 1.5e5                 # number of steps to use with mcmc production run
 usebestfit = True                        # used best-fit instead of median of chain
 secondOrderOffset = True                 # should you use the second order sinusoid terms when calculating offset
@@ -114,7 +111,7 @@ if not binnedPhotometry:
 
 
 ## Download the most recent exoplanet archive data, and select the best constrained value for each parameter
-dh.downloadExoplanetArchive()
+# dh.downloadExoplanetArchive()
 
 # --------------- Zoe ---------------------
 def get_planet_data(planet): # case-sensitive
