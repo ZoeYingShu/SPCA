@@ -21,21 +21,19 @@ import inspect
 from SPCA import helpers, astro_models, make_plots, make_plots_custom, detec_models, bliss, freeze
 from SPCA import Decorrelation_helper as dh
 
-# ExoFile libraries if working offline ----------------------
-from exofile.archive import ExoFile
-from exofile.config import edit_param  # To edit
+# libraries if working offline ----------------------
+import pickle
 from pathlib import Path
 
-PATH_TO_EXOFILE_DIR = Path("/home/ldang05/SPCA_prj/SPCA")
-edit_param(exofile=PATH_TO_EXOFILE_DIR / 'masterfile.ecsv')
+# from exofile.archive import ExoFile
+# from exofile.config import edit_param  # To edit
+# PATH_TO_EXOFILE_DIR = Path("/home/ldang05/SPCA_prj/SPCA")
+# edit_param(exofile=PATH_TO_EXOFILE_DIR / 'masterfile.ecsv')
 # -----------------------------------------------------------
 
 # planets = np.array(['CoRoT-2b', 'HAT-P-7b', 'KELT-1b', 'KELT-16b', 'KELT-9b', 'MASCARA-1b', 'Qatar-1b', 'WASP-103b', 'WASP-12b', 'WASP-12b_old', 'WASP-14b', 'WASP-18b', 'WASP-19b', 'WASP-33b', 'WASP-43b', 'HD189733b', 'HD209458b', 'HD149026b'])
-planets = np.array(['CoRoT-2b'])
-planets_archive = np.array(['CoRoT-2 b'])
+planets = np.array(['KELT-20b'])
 
-# planets = np.array(['KELT-20b'])
-# planets_archive = np.array(['KELT-20 b'])
 channels = np.array(['ch2' for planet in planets])
 
 rootpath = '/home/ldang05/projects/def-ncowan/ldang05/Spitzer_Data/'
@@ -77,8 +75,8 @@ oldPhotometry = False                    # Whether photometry was computed befor
 ncpu = 12                                # The number of cpu threads to be used when running MCMC
 runMCMC = True                           # whether to run MCMC or just load-in past results
 nIterScipy = 10                          # Number of iterative scipy runs used to locate best-fit before starting MCMCs
-nBurnInSteps2 = 7.5e5                    # number of steps to use for the second mcmc burn-in
-nProductionSteps = 1.5e5                 # number of steps to use with mcmc production run
+nBurnInSteps2 = 8.0e5                    # number of steps to use for the second mcmc burn-in
+nProductionSteps = 2.0e5                 # number of steps to use with mcmc production run
 usebestfit = True                        # used best-fit instead of median of chain
 secondOrderOffset = True                 # should you use the second order sinusoid terms when calculating offset
 bestfitNbin = 50                         # the number of binned values to overplot on the bestfit 4-panel figure (use None if you don't want these overplotted)
@@ -116,71 +114,9 @@ if not binnedPhotometry:
 ## Download the most recent exoplanet archive data, and select the best constrained value for each parameter
 dh.downloadExoplanetArchive()
 
-# --------------- Zoe ---------------------
-def get_planet_data(planet): # case-sensitive
-    planet_data = ExoFile.load().by_pl_name(planet)
-    
-    # Define the variable names and their corresponding data names
-    variable_mapping = {
-        'rp': 'pl_ratror',
-        'a': 'pl_ratdor',
-        'per': 'pl_orbper',
-        't0': 'pl_tranmid',
-        'inc': 'pl_orbincl',
-        'e': 'pl_orbeccen',
-        'argp': 'pl_orblper',
-        'Tstar': 'st_teff',
-        'logg': 'st_logg',
-        'feh': 'st_met',
-        'rp_err': 'pl_ratrorerr1',
-        'a_err': 'pl_ratdorerr1',
-        'per_err': 'pl_orbpererr1',
-        't0_err': 'pl_tranmiderr1',
-        'inc_err': 'pl_orbinclerr1',
-        'e_err': 'pl_orbeccenerr1',
-        'argp_err': 'pl_orblpererr1',
-        'Tstar_err': 'st_tefferr1',
-    }
-
-    # Create a dictionary to store the variables
-    variables = {}
-
-    # Take the absolute value of each variable and store it in the dictionary
-    for var_name, var_data_name in variable_mapping.items():
-        variables[var_name] = abs(planet_data[var_data_name].data)
-
-    # Now you can access the absolute values using variable names
-    rp = variables['rp']
-    a = variables['a']
-    per = variables['per']
-    t0 = variables['t0']
-    inc = variables['inc']
-    e = variables['e']
-    argp = variables['argp']
-    Tstar = variables['Tstar']
-    logg = float(variables['logg'])
-    feh = float(variables['feh'])
-    rp_err = variables['rp_err']
-    a_err = variables['a_err']
-    per_err = variables['per_err']
-    t0_err = variables['t0_err']
-    inc_err = variables['inc_err']
-    e_err = variables['e_err']
-    argp_err = variables['argp_err']
-    Tstar_err = variables['Tstar_err']
-
-    parameters = [rp[0], a[0], per[0], t0[0], inc[0], e[0], argp[0], Tstar[0], logg, feh, rp_err[0], a_err[0], t0_err[0], per_err[0], inc_err[0], e_err[0], argp_err[0], Tstar_err[0]]
-
-    return parameters
-
-# --------------- End ---------------------
-
 for iterationNumber in range(len(planets)):
     
     planet = planets[iterationNumber]
-  
-    planet_archive = planets_archive[iterationNumber]
-
     channel = channels[iterationNumber]
     compFactor = compFactors[iterationNumber]
     cut_tmp = cuts[iterationNumber]
@@ -195,10 +131,20 @@ for iterationNumber in range(len(planets)):
     #     p0_obj = dh.loadArchivalData(rootpath, planet, channel)
     
     # --------------- Zoe ---------------------
-    # If cannot connect to the exoplanet archive, use the following code to load data from ExoFile
-    if planet!='WASP-18b':
-        parameters = get_planet_data(planet_archive)
-        p0_obj = dh.loadCustomData(rootpath, planet, channel, *parameters)
+    # If cannot connect to the exoplanet archive, use the following code to load pre-saved data from pickle file
+    PATH_TO_pickle = Path(rootpath) / planet
+    pickle_file = PATH_TO_pickle / 'p0_obj.pkl'
+
+    if planet != 'WASP-18b':
+        if pickle_file.exists():
+            try:
+                with open(pickle_file, 'rb') as fp:
+                    p0_obj = pickle.load(fp)
+                    print(p0_obj)
+            except Exception as e:
+                print(f'Error loading pickle file: {e}')
+        else:
+            raise FileNotFoundError(f'{pickle_file} does not exist.')
 
     # --------------- End ---------------------
 
@@ -286,7 +232,6 @@ for iterationNumber in range(len(planets)):
                 pldIgnoreFrames = True
             foldername_psf = ''
         else:
-            print('HERE 2')
             foldername_aper = ''
         if 'psfx' in mode.lower():
             foldername_psf = dh.findPhotometry(rootpath, planet, channel, 'PSFX')[0]
