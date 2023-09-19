@@ -8,7 +8,7 @@ from zipfile import ZipFile
 basepath = '/home/ldang05/projects/def-ncowan/ldang05/Spitzer_Data/'
 
 # planets = ['CoRoT-2b', 'HAT-P-7b', 'KELT-1b', 'KELT-16b', 'KELT-9b', 'MASCARA-1b', 'Qatar-1b', 'WASP-103b', 'WASP-12b', 'WASP-12b_old', 'WASP-14b', 'WASP-18b', 'WASP-19b', 'WASP-33b', 'WASP-43b', 'HD189733b', 'HD209458b', 'HD149026b']
-planets = ['WASP-76b']
+planets = ['KELT-14b','Qatar-2b','WASP-140b', 'WASP-95b']
 
 for planet in planets:
     rootpath = basepath+planet+'/'

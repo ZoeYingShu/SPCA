@@ -32,7 +32,7 @@ from pathlib import Path
 # -----------------------------------------------------------
 
 # planets = np.array(['CoRoT-2b', 'HAT-P-7b', 'KELT-1b', 'KELT-16b', 'KELT-9b', 'MASCARA-1b', 'Qatar-1b', 'WASP-103b', 'WASP-12b', 'WASP-12b_old', 'WASP-14b', 'WASP-18b', 'WASP-19b', 'WASP-33b', 'WASP-43b', 'HD189733b', 'HD209458b', 'HD149026b'])
-planets = np.array(['KELT-20b'])
+planets = np.array(['WASP-34b'])
 
 channels = np.array(['ch2' for planet in planets])
 
@@ -65,14 +65,14 @@ tryPLD2_5x5 = True                       # whether to try 2nd order PLD with a 5
 tryBliss = True                          # whether to try BLISS detector model
 tryGP = False                            # whether to try GP detector model
 tryEllipse = False                       # Whether to try an ellipsoidal variation astrophysical model
-tryPSFW = False
+tryPSFW = True
 tryHside = False                          # whether to try Heaviside step function
 
 usePSFX = False                          # Whether or not to use PSF photometry centroids and psf widths (otherwise aperture's)
 
 binnedPhotometry = True                  # Whether or not to use the binned photometry
 oldPhotometry = False                    # Whether photometry was computed before May 1, 2020 when flux conversion was patched
-ncpu = 12                                # The number of cpu threads to be used when running MCMC
+ncpu = 32                                # The number of cpu threads to be used when running MCMC
 runMCMC = True                           # whether to run MCMC or just load-in past results
 nIterScipy = 10                          # Number of iterative scipy runs used to locate best-fit before starting MCMCs
 nBurnInSteps2 = 8.0e5                    # number of steps to use for the second mcmc burn-in
