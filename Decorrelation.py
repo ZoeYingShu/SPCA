@@ -32,7 +32,7 @@ from pathlib import Path
 # -----------------------------------------------------------
 
 # planets = np.array(['CoRoT-2b', 'HAT-P-7b', 'KELT-1b', 'KELT-16b', 'KELT-9b', 'MASCARA-1b', 'Qatar-1b', 'WASP-103b', 'WASP-12b', 'WASP-12b_old', 'WASP-14b', 'WASP-18b', 'WASP-19b', 'WASP-33b', 'WASP-43b', 'HD189733b', 'HD209458b', 'HD149026b'])
-planets = np.array(['WASP-34b'])
+planets = np.array(['TrES-3b'])
 
 channels = np.array(['ch2' for planet in planets])
 
