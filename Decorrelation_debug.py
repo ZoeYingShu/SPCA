@@ -32,7 +32,7 @@ from pathlib import Path
 # -----------------------------------------------------------
 
 # planets = np.array(['CoRoT-2b', 'HAT-P-7b', 'KELT-1b', 'KELT-16b', 'KELT-9b', 'MASCARA-1b', 'Qatar-1b', 'WASP-103b', 'WASP-12b', 'WASP-12b_old', 'WASP-14b', 'WASP-18b', 'WASP-19b', 'WASP-33b', 'WASP-43b', 'HD189733b', 'HD209458b', 'HD149026b'])
-planets = np.array(['Qatar-2b'])
+planets = np.array(['HAT-P-23b'])
 
 channels = np.array(['ch2' for planet in planets])
 
@@ -55,14 +55,14 @@ uparams_limits_raw.extend([[-3,3] for i in range(1,26)])
 uparams_limits_raw.extend([[-500,500] for i in range(1,26)])
 
 
-minPolys = 2*np.ones(len(planets)).astype(int)       # minimum polynomial order to consider
+minPolys = 6*np.ones(len(planets)).astype(int)       # minimum polynomial order to consider 2 before
 maxPolys = 5*np.ones(len(planets)).astype(int)       # maximum polynomial order to consider (set < minPoly to not use polynomial models)
 PLDAper = True                           # whether to use aperture photometry when doing PLD (strongly recommended as this gives much cleaner photometry than the sum of the PLD stamp)
 tryPLD1_3x3 = True                       # whether to try 1st order PLD with a 3x3 stamp (must have run 3x3 PLD photometry)
-tryPLD2_3x3 = True                       # whether to try 2nd order PLD with a 3x3 stamp (must have run 3x3 PLD photometry)
-tryPLD1_5x5 = True                       # whether to try 1st order PLD with a 5x5 stamp (must have run 5x5 PLD photometry)
-tryPLD2_5x5 = True                       # whether to try 2nd order PLD with a 5x5 stamp (must have run 5x5 PLD photometry)
-tryBliss = True                          # whether to try BLISS detector model
+tryPLD2_3x3 = False                       # whether to try 2nd order PLD with a 3x3 stamp (must have run 3x3 PLD photometry)
+tryPLD1_5x5 = False                       # whether to try 1st order PLD with a 5x5 stamp (must have run 5x5 PLD photometry)
+tryPLD2_5x5 = False                       # whether to try 2nd order PLD with a 5x5 stamp (must have run 5x5 PLD photometry)
+tryBliss = False                          # whether to try BLISS detector model
 tryGP = False                            # whether to try GP detector model
 tryEllipse = False                       # Whether to try an ellipsoidal variation astrophysical model
 tryPSFW = True
@@ -72,7 +72,7 @@ usePSFX = False                          # Whether or not to use PSF photometry 
 
 binnedPhotometry = True                  # Whether or not to use the binned photometry
 oldPhotometry = False                    # Whether photometry was computed before May 1, 2020 when flux conversion was patched
-ncpu = 24                                # The number of cpu threads to be used when running MCMC
+ncpu = 12                                # The number of cpu threads to be used when running MCMC
 runMCMC = True                           # whether to run MCMC or just load-in past results
 nIterScipy = 10                          # Number of iterative scipy runs used to locate best-fit before starting MCMCs
 nBurnInSteps2 = 8.0e5                    # number of steps to use for the second mcmc burn-in
@@ -112,7 +112,7 @@ if not binnedPhotometry:
 
 
 ## Download the most recent exoplanet archive data, and select the best constrained value for each parameter
-dh.downloadExoplanetArchive()
+# dh.downloadExoplanetArchive()
 
 for iterationNumber in range(len(planets)):
     
@@ -140,7 +140,6 @@ for iterationNumber in range(len(planets)):
             try:
                 with open(pickle_file, 'rb') as fp:
                     p0_obj = pickle.load(fp)
-                    print(p0_obj)
             except Exception as e:
                 print(f'Error loading pickle file: {e}')
         else:
