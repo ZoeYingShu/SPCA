@@ -564,12 +564,12 @@ def lnprob(p0, flux, mode, p0_labels, signal_func, signal_inputs,
     if not np.isfinite(lp):
         return -np.inf
     
-    # print('p0 shape is ', p0.shape)
-    print('flux shape is ', flux.shape)
-    # print('mode is ', mode)
-    # print('signal_func is ', signal_func)
-    print('signal_inputs4 shape is ', signal_inputs[3].shape)
-    print('signal_inputs6 shape is ', signal_inputs[6][0][0].shape)
+    # # print('p0 shape is ', p0.shape)
+    # print('flux shape is ', flux.shape)
+    # # print('mode is ', mode)
+    # # print('signal_func is ', signal_func)
+    # print('signal_inputs4 shape is ', signal_inputs[3].shape)
+    # print('signal_inputs6 shape is ', signal_inputs[6][0][0].shape)
 
     lp += lnlike(p0, flux, mode, signal_func, signal_inputs)
     if not np.isfinite(lp):
